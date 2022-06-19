@@ -1,0 +1,11 @@
+[package]
+name = "world-recovery"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flate2 = { version = "1.0.22", features = ["zlib-ng-compat"], default-features = false }
+quartz_nbt = { version = "0.2.6" }
+bit-set = "0.5.2"
