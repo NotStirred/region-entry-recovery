@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 flate2 = { version = "1.0.22", features = ["zlib-ng-compat"], default-features = false }
 quartz_nbt = { version = "0.2.6" }
-bit-set = "0.5.2"
