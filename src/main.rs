@@ -189,13 +189,20 @@ fn recover_entries(file_path: &Path, duplicate_behaviour: Option<DuplicateBehavi
 }
 
 fn main() -> std::io::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 2 {
+        println!("World path must be provided as an argument!");
+        return Ok(());
+    }
+
     let duplicate_behaviour = ask_for_duplicate_behaviour_optional();
 
-    let world_path = Path::new("/the/world/path");
+    let world_path = Path::new(&args[1]);
     let world_path = world_path.join("region");
 
     let world_path = Path::new(&world_path);
-    for entry in fs::read_dir(world_path)?{
+    for entry in fs::read_dir(world_path)? {
         let entry = entry?;
         let entry_path = entry.path();
         if !entry_path.is_dir() {
