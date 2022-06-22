@@ -84,8 +84,8 @@ pub fn ask_for_duplicate_behaviour_optional() -> Option<DuplicateBehaviour> {
 }
 pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
     println!("Duplicate entries have been found, what would you like to do?
-    `TakeCurrent` - Always take the current chunk
-    `TakeUntracked` - Always take one of the untracked chunks (you can decide if there are multiple)");
+    `TakeCurrent` - Take the current chunk
+    `TakeUntracked` - Take one of the untracked chunks (you can decide if there are multiple)");
 
     loop {
         let mut line = String::new();
