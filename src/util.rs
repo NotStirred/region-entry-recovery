@@ -62,7 +62,6 @@ pub fn trim_newline(s: &mut String) {
 pub fn ask_for_duplicate_behaviour_optional() -> Option<DuplicateBehaviour> {
     println!("If duplicate entries are found, what would you like to do?
     `DecidePerEntry` - Decide for each chunk each time there is a duplicate
-    `TakeCurrent` - Always take the current chunk
     `TakeUntracked` - Always take one of the untracked chunks (you can decide if there are multiple)");
 
     loop {
@@ -73,9 +72,6 @@ pub fn ask_for_duplicate_behaviour_optional() -> Option<DuplicateBehaviour> {
         match line.to_lowercase().as_str() {
             "decideperentry" => {
                 break None;
-            },
-            "takecurrent" => {
-                break Some(TakeCurrent);
             },
             "takeuntracked" => {
                 break Some(TakeUntracked);
