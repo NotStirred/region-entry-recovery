@@ -64,10 +64,10 @@ pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
         let line = line.trim();
 
         match line.to_lowercase().as_str() {
-            "takecurrent" => {
+            "take_current" => {
                 break TakeCurrent;
             }
-            "takeuntracked" => {
+            "take_untracked" => {
                 break TakeUntracked;
             }
             _ => {
