@@ -51,15 +51,6 @@ pub fn read_bigendian_u32(bytes: &[u8], header_offset: usize) -> u32 {
         | (bytes[header_offset] as u32) << 24
 }
 
-pub fn trim_newline(s: &mut String) {
-    if s.ends_with('\n') {
-        s.pop();
-        if s.ends_with('\r') {
-            s.pop();
-        }
-    }
-}
-
 pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
     println!(
         "Duplicate entries have been found, what would you like to do?
@@ -70,7 +61,7 @@ pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
     loop {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line).unwrap();
-        trim_newline(&mut line);
+        let line = line.trim();
 
         match line.to_lowercase().as_str() {
             "takecurrent" => {
@@ -93,7 +84,7 @@ where
     loop {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line).unwrap();
-        trim_newline(&mut line);
+        let line = line.trim();
 
         let parsed: Result<i32, ParseIntError> = line.parse();
         match parsed {
