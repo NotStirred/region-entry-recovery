@@ -1,17 +1,19 @@
+use clap::Parser;
 use std::num::ParseIntError;
+
 use crate::util::DuplicateBehaviour::{TakeCurrent, TakeUntracked};
 
 pub const REGION_DIAMETER_IN_CHUNKS: u32 = 32;
-pub const CHUNKS_PER_REGION: u32 = REGION_DIAMETER_IN_CHUNKS*REGION_DIAMETER_IN_CHUNKS;
+pub const CHUNKS_PER_REGION: u32 = REGION_DIAMETER_IN_CHUNKS * REGION_DIAMETER_IN_CHUNKS;
 pub const SECTOR_SIZE: usize = 4096;
 pub const SECTOR_SIZE_BITS: u32 = 12;
 
-pub const SIZE_BITS : u32 = 8;
-pub const SIZE_MASK : u32 = (1 << SIZE_BITS) - 1;
+pub const SIZE_BITS: u32 = 8;
+pub const SIZE_MASK: u32 = (1 << SIZE_BITS) - 1;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug, clap::ValueEnum)]
 pub enum DuplicateBehaviour {
-    TakeCurrent, // take the chunk referenced by the header file
+    TakeCurrent,   // take the chunk referenced by the header file
     TakeUntracked, // take the chunk not referenced by the header file, choose if there are several
 }
 
@@ -26,7 +28,10 @@ pub fn chunk_position_from_entry_idx(region_position: (i32, i32), entry_idx: u16
     let entry_x = entry_idx & 0x1f;
     let entry_z = entry_idx >> 5;
 
-    return ((region_position.0 << 5) + (entry_x as i32), (region_position.1 << 5) + (entry_z as i32));
+    return (
+        (region_position.0 << 5) + (entry_x as i32),
+        (region_position.1 << 5) + (entry_z as i32),
+    );
 }
 
 pub fn set_header_entry(bytes: &mut [u8], header_offset: usize, sector_idx: usize, size: u8) {
@@ -44,10 +49,10 @@ pub fn set_header_entry(bytes: &mut [u8], header_offset: usize, sector_idx: usiz
 }
 
 pub fn read_bigendian_u32(bytes: &[u8], header_offset: usize) -> u32 {
-    (bytes[header_offset + 3] as u32) |
-        (bytes[header_offset + 2] as u32) << 8 |
-        (bytes[header_offset + 1] as u32) << 16 |
-        (bytes[header_offset + 0] as u32) << 24
+    (bytes[header_offset + 3] as u32)
+        | (bytes[header_offset + 2] as u32) << 8
+        | (bytes[header_offset + 1] as u32) << 16
+        | (bytes[header_offset + 0] as u32) << 24
 }
 
 pub fn trim_newline(s: &mut String) {
@@ -59,33 +64,12 @@ pub fn trim_newline(s: &mut String) {
     }
 }
 
-pub fn ask_for_duplicate_behaviour_optional() -> Option<DuplicateBehaviour> {
-    println!("If duplicate entries are found, what would you like to do?
-    `DecidePerEntry` - Decide for each chunk each time there is a duplicate
-    `TakeUntracked` - Always take one of the untracked chunks (you can decide if there are multiple)");
-
-    loop {
-        let mut line = String::new();
-        std::io::stdin().read_line(&mut line).unwrap();
-        trim_newline(&mut line);
-
-        match line.to_lowercase().as_str() {
-            "decideperentry" => {
-                break None;
-            },
-            "takeuntracked" => {
-                break Some(TakeUntracked);
-            },
-            _ => {
-                println!("Invalid value!");
-            },
-        }
-    }
-}
 pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
-    println!("Duplicate entries have been found, what would you like to do?
+    println!(
+        "Duplicate entries have been found, what would you like to do?
     `TakeCurrent` - Take the current chunk
-    `TakeUntracked` - Take one of the untracked chunks (you can decide if there are multiple)");
+    `TakeUntracked` - Take one of the untracked chunks (you can decide if there are multiple)"
+    );
 
     loop {
         let mut line = String::new();
@@ -95,18 +79,21 @@ pub fn ask_for_duplicate_behaviour() -> DuplicateBehaviour {
         match line.to_lowercase().as_str() {
             "takecurrent" => {
                 break TakeCurrent;
-            },
+            }
             "takeuntracked" => {
                 break TakeUntracked;
-            },
+            }
             _ => {
                 println!("Invalid value!");
-            },
+            }
         }
     }
 }
 
-pub fn ask_for_integer_greater_than_1() -> u32 {
+pub fn ask_for_integer<F>(is_valid: F) -> i32
+where
+    F: Fn(i32) -> bool,
+{
     loop {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line).unwrap();
@@ -115,8 +102,8 @@ pub fn ask_for_integer_greater_than_1() -> u32 {
         let parsed: Result<i32, ParseIntError> = line.parse();
         match parsed {
             Ok(value) => {
-                if value > 1 {
-                    return value as u32
+                if is_valid(value) {
+                    return value;
                 }
             }
             Err(_) => {
